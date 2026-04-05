@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
 import MasterPage from './pages/MasterPage';
 import CustomerMasterHome from './pages/CustomerMasterHome';
+import AddCustomer from './pages/AddCustomer';
 
 const App = () => {
   return (
@@ -18,6 +19,7 @@ const App = () => {
           
           <Route path="master" element={<MasterPage />} />
           <Route path="master/customers" element={<CustomerMasterHome />} />
+          <Route path="master/customers/add" element={<AddCustomer />} />
           
           <Route path="billing" element={
             <div>

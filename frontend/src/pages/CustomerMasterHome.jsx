@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const CustomerMasterHome = () => {
+  const navigate = useNavigate();
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -28,7 +30,9 @@ const CustomerMasterHome = () => {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
         <h1 className="page-title" style={{ margin: 0, textTransform: 'uppercase', fontSize: '24px' }}>Customers</h1>
-        <button style={{ 
+        <button 
+          onClick={() => navigate('/master/customers/add')}
+          style={{ 
           padding: '8px 16px', 
           borderRadius: '6px', 
           border: '1px solid #e0e0e0', 
@@ -38,7 +42,8 @@ const CustomerMasterHome = () => {
           gap: '8px', 
           cursor: 'pointer', 
           fontWeight: 'bold',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+          boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+          color: '#333'
         }}>
           <span style={{ background: '#2c3e50', color: 'white', borderRadius: '50%', width: '18px', height: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}>+</span>
           ADD
