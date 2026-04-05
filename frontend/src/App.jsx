@@ -6,6 +6,7 @@ import CustomerMasterHome from './pages/CustomerMasterHome';
 import AddCustomer from './pages/AddCustomer';
 import ItemMasterHome from './pages/ItemMasterHome';
 import AddItem from './pages/AddItem';
+import BillingHome from './pages/BillingHome';
 
 const App = () => {
   return (
@@ -25,12 +26,7 @@ const App = () => {
           <Route path="master/items" element={<ItemMasterHome />} />
           <Route path="master/items/add" element={<AddItem />} />
           
-          <Route path="billing" element={
-            <div>
-              <h1 className="page-title">Billing</h1>
-              <p>Billss </p>
-            </div>
-          } />
+          <Route path="billing" element={<BillingHome />} />
         </Route>
       </Routes>
     </BrowserRouter>
