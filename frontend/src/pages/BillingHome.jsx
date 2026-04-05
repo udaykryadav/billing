@@ -133,18 +133,37 @@ const BillingHome = () => {
               {error && <div style={{ color: 'red' }}>Error: {error}</div>}
               
               <div className="card-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}>
-                {customers.map(customer => {
+                {[...customers]
+                  .sort((a, b) => {
+                    const aActive = getProp(a, 'isactive', 'isActive') === 'Y' ? 1 : 0;
+                    const bActive = getProp(b, 'isactive', 'isActive') === 'Y' ? 1 : 0;
+                    return bActive - aActive; // Show active first
+                  })
+                  .map(customer => {
                   const custName = getProp(customer, 'custname', 'CustName');
                   const isActive = getProp(customer, 'isactive', 'isActive');
+                  const isActiveBool = isActive === 'Y';
+                  
                   return (
                     <div 
                       key={getProp(customer, 'custid', 'CustID')} 
                       className="module-card" 
                       onClick={() => {
-                        setSelectedCustomer(customer);
-                        setCustomerModalOpen(false);
+                        if (isActiveBool) {
+                          setSelectedCustomer(customer);
+                          setCustomerModalOpen(false);
+                        }
                       }}
-                      style={{ display: 'flex', flexDirection: 'column', height: 'auto', minHeight: '120px', padding: '20px', cursor: 'pointer' }}
+                      style={{ 
+                        display: 'flex', 
+                        flexDirection: 'column', 
+                        height: 'auto', 
+                        minHeight: '120px', 
+                        padding: '20px', 
+                        cursor: isActiveBool ? 'pointer' : 'not-allowed',
+                        backgroundColor: isActiveBool ? '#ffffff' : '#eaeaea',
+                        opacity: isActiveBool ? 1 : 0.8
+                      }}
                     >
                       <div className="module-card-title" style={{ flexGrow: 1, fontSize: '18px', marginBottom: '20px' }}>
                         {custName}
@@ -155,10 +174,10 @@ const BillingHome = () => {
                           borderRadius: '4px',
                           fontSize: '12px',
                           fontWeight: 'bold',
-                          backgroundColor: isActive === 'Y' ? '#d4edda' : '#f8d7da',
-                          color: isActive === 'Y' ? '#155724' : '#721c24'
+                          backgroundColor: isActiveBool ? '#d4edda' : '#f8d7da',
+                          color: isActiveBool ? '#155724' : '#721c24'
                         }}>
-                          {isActive === 'Y' ? 'Active' : 'In-Active'}
+                          {isActiveBool ? 'Active' : 'In-Active'}
                         </span>
                       </div>
                     </div>
