@@ -9,6 +9,7 @@ const port = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
+// Initialize PostgreSQL Connection Pool defining serverless mappings safely.
 const pool = new Pool({
   user: process.env.DB_USER || 'postgres',
   host: process.env.DB_HOST || 'localhost',
@@ -17,6 +18,10 @@ const pool = new Pool({
   port: process.env.DB_PORT || 5432,
 });
 
+/**
+ * CUSTOMER ARCHITECTURE
+ * Handles GET/POST tracking Active rules alongside system-generated CustID formats.
+ */
 app.get('/api/customers', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM customers ORDER BY created_at DESC');
