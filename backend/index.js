@@ -87,6 +87,43 @@ app.post('/api/items', async (req, res) => {
   }
 });
 
+app.post('/api/bills', async (req, res) => {
+  const codeClient = await pool.connect();
+  try {
+    const { CustID, TotalAmount, items } = req.body;
+
+    if (!CustID || !items || !items.length) {
+      return res.status(400).json({ error: 'Missing required Billing data.' });
+    }
+
+    await codeClient.query('BEGIN');
+
+    const billInsert = await codeClient.query(
+      'INSERT INTO bills ("custid", "totalamount") VALUES ($1, $2) RETURNING "billid", "invoiceid"',
+      [CustID, TotalAmount]
+    );
+
+    const newBillId = billInsert.rows[0].billid;
+    const newInvoiceId = billInsert.rows[0].invoiceid;
+
+    for (let currentItem of items) {
+      await codeClient.query(
+        'INSERT INTO bill_items ("billid", "itemid", "quantity", "priceatsale") VALUES ($1, $2, $3, $4)',
+        [newBillId, currentItem.ItemID, currentItem.Quantity, currentItem.PriceAtSale]
+      );
+    }
+
+    await codeClient.query('COMMIT');
+    res.status(201).json({ success: true, invoiceId: newInvoiceId });
+  } catch (error) {
+    await codeClient.query('ROLLBACK');
+    console.error('Transaction Failed. Error processing Bills API:', error);
+    res.status(500).json({ error: 'Internal server error processing Bill.' });
+  } finally {
+    codeClient.release();
+  }
+});
+
 app.listen(port, () => {
   console.log(`Backend server running on http://localhost:${port}`);
 });
