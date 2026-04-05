@@ -4,6 +4,8 @@ import Layout from './components/Layout';
 import MasterPage from './pages/MasterPage';
 import CustomerMasterHome from './pages/CustomerMasterHome';
 import AddCustomer from './pages/AddCustomer';
+import ItemMasterHome from './pages/ItemMasterHome';
+import AddItem from './pages/AddItem';
 
 const App = () => {
   return (
@@ -20,6 +22,8 @@ const App = () => {
           <Route path="master" element={<MasterPage />} />
           <Route path="master/customers" element={<CustomerMasterHome />} />
           <Route path="master/customers/add" element={<AddCustomer />} />
+          <Route path="master/items" element={<ItemMasterHome />} />
+          <Route path="master/items/add" element={<AddItem />} />
           
           <Route path="billing" element={
             <div>
