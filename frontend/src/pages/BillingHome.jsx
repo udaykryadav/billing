@@ -14,6 +14,7 @@ const BillingHome = () => {
   const [itemsLoading, setItemsLoading] = useState(false);
   const [itemsError, setItemsError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [generatedInvoiceId, setGeneratedInvoiceId] = useState(null);
 
   useEffect(() => {
     if (isCustomerModalOpen && customers.length === 0) {
@@ -56,6 +57,7 @@ const BillingHome = () => {
   const getProp = (obj, prop1, prop2) => obj ? (obj[prop1] !== undefined ? obj[prop1] : obj[prop2]) : '';
 
   const handleUpdateQty = (itemData, delta) => {
+    if (generatedInvoiceId) return; // Block updates if invoice locked
     const itemId = getProp(itemData, 'itemid', 'ItemID');
     setSelectedItems(prev => {
       const existing = prev.find(si => getProp(si.item, 'itemid', 'ItemID') === itemId);
@@ -129,10 +131,7 @@ const BillingHome = () => {
       }
 
       const resData = await response.json();
-      alert(`Invoice Successfully Generated! Reference ID: ${resData.invoiceId}`);
-      
-      setSelectedCustomer(null);
-      setSelectedItems([]);
+      setGeneratedInvoiceId(resData.invoiceId);
     } catch (err) {
       console.error(err);
       alert('There was an error trying to push this invoice. Check connection logs.');
@@ -141,13 +140,20 @@ const BillingHome = () => {
     }
   };
 
+  const handleNewBill = () => {
+    setGeneratedInvoiceId(null);
+    setSelectedCustomer(null);
+    setSelectedItems([]);
+  };
+
   return (
     <div style={{ position: 'relative' }}>
       <h1 className="page-title" style={{ margin: 0, marginBottom: '30px', fontWeight: 'bold', fontSize: '24px' }}>Billing</h1>
 
       <div style={{ backgroundColor: '#f8f9fa', borderRadius: '4px', overflow: 'hidden', minHeight: '150px', display: 'flex', flexDirection: 'column', paddingBottom: '20px' }}>
-        <div style={{ padding: '16px 20px', borderBottom: '1px solid #e0e0e0' }}>
+        <div style={{ padding: '16px 20px', borderBottom: '1px solid #e0e0e0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h2 style={{ margin: 0, fontSize: '14px', fontWeight: 'bold' }}>Customer Details</h2>
+          {generatedInvoiceId && <div style={{ fontSize: '14px', fontWeight: 'bold' }}>Invoice ID: {generatedInvoiceId}</div>}
         </div>
         
         {selectedCustomer ? (
@@ -185,7 +191,7 @@ const BillingHome = () => {
         <div style={{ backgroundColor: '#ffffff', borderRadius: '4px', overflow: 'hidden', minHeight: '150px', display: 'flex', flexDirection: 'column', marginTop: '30px', paddingBottom: '40px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
           <div style={{ padding: '16px 20px', borderBottom: '1px solid #e0e0e0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <h2 style={{ margin: 0, fontSize: '14px', fontWeight: 'bold' }}>Items</h2>
-            {selectedItems.length > 0 && (
+            {(selectedItems.length > 0 && !generatedInvoiceId) && (
               <button 
                 onClick={() => setItemModalOpen(true)}
                 style={{ padding: '6px 12px', border: 'none', background: '#1a237e', color: 'white', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', fontSize: '12px' }}
@@ -230,7 +236,11 @@ const BillingHome = () => {
                   <div key={index} style={{ display: 'flex', padding: '15px 0', alignItems: 'center', borderBottom: '1px solid #f0f0f0' }}>
                     <div style={{ flex: 2, fontSize: '16px' }}>{itemName}</div>
                     <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-                      <QuantityControl itemData={si.item} qty={si.qty} />
+                      {generatedInvoiceId ? (
+                        <span style={{ fontWeight: 'bold', fontSize: '16px' }}>{si.qty}</span>
+                      ) : (
+                        <QuantityControl itemData={si.item} qty={si.qty} />
+                      )}
                     </div>
                     <div style={{ flex: 1, textAlign: 'right', fontWeight: 'bold', fontSize: '16px' }}>{totalItemPrice.toFixed(0)}</div>
                   </div>
@@ -261,17 +271,27 @@ const BillingHome = () => {
                 })()}
 
                 <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
-                  <button 
-                  onClick={() => { setSelectedCustomer(null); setSelectedItems([]) }}
-                  style={{ padding: '8px 24px', border: '1px solid #ff4d4f', color: '#ff4d4f', background: 'transparent', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
-                    Cancel
-                  </button>
-                  <button 
-                   disabled={isSubmitting}
-                   onClick={handleCreateBill}
-                   style={{ padding: '8px 24px', border: 'none', background: '#2c2e5b', color: 'white', borderRadius: '4px', cursor: isSubmitting ? 'wait' : 'pointer', fontWeight: 'bold', opacity: isSubmitting ? 0.7 : 1 }}>
-                    {isSubmitting ? 'Creating...' : 'Create'}
-                  </button>
+                  {generatedInvoiceId ? (
+                     <button 
+                       onClick={handleNewBill}
+                       style={{ padding: '8px 24px', border: 'none', background: '#2c2e5b', color: 'white', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
+                       Start New Bill
+                     </button>
+                  ) : (
+                    <>
+                      <button 
+                      onClick={() => { setSelectedCustomer(null); setSelectedItems([]) }}
+                      style={{ padding: '8px 24px', border: '1px solid #ff4d4f', color: '#ff4d4f', background: 'transparent', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
+                        Cancel
+                      </button>
+                      <button 
+                       disabled={isSubmitting}
+                       onClick={handleCreateBill}
+                       style={{ padding: '8px 24px', border: 'none', background: '#2c2e5b', color: 'white', borderRadius: '4px', cursor: isSubmitting ? 'wait' : 'pointer', fontWeight: 'bold', opacity: isSubmitting ? 0.7 : 1 }}>
+                        {isSubmitting ? 'Creating...' : 'Create'}
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
