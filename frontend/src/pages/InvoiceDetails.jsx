@@ -9,7 +9,7 @@ const InvoiceDetails = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch(`http://localhost:3000/api/bills/${id}`)
+    fetch(`/api/bills/${id}`)
       .then(res => {
         if (!res.ok) throw new Error('Invoice not found or server error');
         return res.json();

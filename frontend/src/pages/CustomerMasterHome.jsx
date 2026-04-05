@@ -8,7 +8,7 @@ const CustomerMasterHome = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch('http://localhost:3000/api/customers')
+    fetch('/api/customers')
       .then(res => {
         if (!res.ok) throw new Error('Failed to fetch data');
         return res.json();

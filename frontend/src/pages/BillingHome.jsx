@@ -19,7 +19,7 @@ const BillingHome = () => {
   useEffect(() => {
     if (isCustomerModalOpen && customers.length === 0) {
       setLoading(true);
-      fetch('http://localhost:3000/api/customers')
+      fetch('/api/customers')
         .then(res => {
           if (!res.ok) throw new Error('Failed to fetch customers');
           return res.json();
@@ -38,7 +38,7 @@ const BillingHome = () => {
   useEffect(() => {
     if (isItemModalOpen && allItems.length === 0) {
       setItemsLoading(true);
-      fetch('http://localhost:3000/api/items')
+      fetch('/api/items')
         .then(res => {
           if (!res.ok) throw new Error('Failed to fetch items');
           return res.json();
@@ -120,7 +120,7 @@ const BillingHome = () => {
         }))
       };
 
-      const response = await fetch('http://localhost:3000/api/bills', {
+      const response = await fetch('/api/bills', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)

@@ -9,7 +9,7 @@ const DashboardHome = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch('http://localhost:3000/api/bills')
+    fetch('/api/bills')
       .then(res => {
         if (!res.ok) throw new Error('Failed to fetch dashboard data');
         return res.json();
