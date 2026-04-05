@@ -7,18 +7,16 @@ import AddCustomer from './pages/AddCustomer';
 import ItemMasterHome from './pages/ItemMasterHome';
 import AddItem from './pages/AddItem';
 import BillingHome from './pages/BillingHome';
+import DashboardHome from './pages/DashboardHome';
+import InvoiceDetails from './pages/InvoiceDetails';
 
 const App = () => {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Layout />}>
-          <Route index element={
-            <div>
-              <h1 className="page-title">Dashboard</h1>
-              <p>Welcome to the Billing System. Select a module from the sidebar.</p>
-            </div>
-          } />
+          <Route index element={<DashboardHome />} />
+          <Route path="invoice/:id" element={<InvoiceDetails />} />
           
           <Route path="master" element={<MasterPage />} />
           <Route path="master/customers" element={<CustomerMasterHome />} />

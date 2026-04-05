@@ -124,6 +124,61 @@ app.post('/api/bills', async (req, res) => {
   }
 });
 
+app.get('/api/bills', async (req, res) => {
+  try {
+    const query = `
+      SELECT 
+        b."billid", b."invoiceid", b."totalamount",
+        c."custname" as customername,
+        (SELECT string_agg(i."itemname", ', ')
+         FROM bill_items bi 
+         JOIN items i ON bi."itemid" = i."itemid" 
+         WHERE bi."billid" = b."billid") as itemnames
+      FROM bills b
+      JOIN customers c ON b."custid" = c."custid"
+      ORDER BY b.created_at DESC
+    `;
+    const result = await pool.query(query);
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Error fetching bills:', err);
+    res.status(500).json({ error: 'Internal server error fetching bills' });
+  }
+});
+
+app.get('/api/bills/:invoiceId', async (req, res) => {
+  try {
+    const billQuery = `
+      SELECT b."billid", b."invoiceid", b."totalamount",
+             c."custid", c."custname", c."custaddress", c."custpan", c."custgst"
+      FROM bills b
+      JOIN customers c ON b."custid" = c."custid"
+      WHERE b."invoiceid" = $1
+    `;
+    const billResult = await pool.query(billQuery, [req.params.invoiceId]);
+    if (billResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Invoice not found' });
+    }
+    const billData = billResult.rows[0];
+
+    const itemsQuery = `
+      SELECT i."itemid", i."itemname", bi."quantity", bi."priceatsale"
+      FROM bill_items bi
+      JOIN items i ON bi."itemid" = i."itemid"
+      WHERE bi."billid" = $1
+    `;
+    const itemsResult = await pool.query(itemsQuery, [billData.billid]);
+
+    res.json({
+      ...billData,
+      items: itemsResult.rows
+    });
+  } catch (err) {
+    console.error('Error fetching single bill:', err);
+    res.status(500).json({ error: 'Internal server error fetching single bill details.' });
+  }
+});
+
 app.listen(port, () => {
   console.log(`Backend server running on http://localhost:${port}`);
 });
